@@ -23,7 +23,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const dataBase = client.db("TraVoa_DB");
+    // collections
+    const roomsCollection = dataBase.collection("rooms");
 
+    // API
+    app.get("/rooms", async (req, res) => {
+      const result = await roomsCollection.find().toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
