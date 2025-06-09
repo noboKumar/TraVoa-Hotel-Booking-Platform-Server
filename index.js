@@ -1,6 +1,33 @@
+require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = process.env.port || 3000;
+
+// middleware
+app.use(cors());
+app.use(express.json());
+
+// mongodb
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const uri = process.env.DB_URI;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+async function run() {
+  try {
+    const dataBase = client.db("TraVoa_DB");
+
+  } finally {
+  }
+}
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("server is Running...");
