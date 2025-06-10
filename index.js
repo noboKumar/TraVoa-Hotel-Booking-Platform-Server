@@ -39,6 +39,23 @@ async function run() {
       const result = await roomsCollection.findOne(query);
       res.send(result);
     });
+
+    // update rooms API based on bookings room
+    app.patch("/rooms/:roomId", async (req, res) => {
+      const id = req.params.roomId;
+      const filter = { _id: new ObjectId(id) };
+      const UpdateRoomData = req.body;
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: UpdateRoomData,
+      };
+      const result = await roomsCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
   } finally {
   }
 }
