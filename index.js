@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // mongodb
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.DB_URI;
 
 const client = new MongoClient(uri, {
@@ -26,9 +26,17 @@ async function run() {
     // collections
     const roomsCollection = dataBase.collection("rooms");
 
-    // API
+    // rooms API
     app.get("/rooms", async (req, res) => {
       const result = await roomsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // room details API
+    app.get("/rooms/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollection.findOne(query);
       res.send(result);
     });
   } finally {
