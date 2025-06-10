@@ -41,7 +41,7 @@ async function run() {
     });
 
     // update rooms API based on bookings room
-    app.patch("/rooms/:roomId", async (req, res) => {
+    app.patch("/bookedRooms/:roomId", async (req, res) => {
       const id = req.params.roomId;
       const filter = { _id: new ObjectId(id) };
       const UpdateRoomData = req.body;
@@ -54,6 +54,16 @@ async function run() {
         updatedDoc,
         options
       );
+      res.send(result);
+    });
+
+    // my bookings API
+    app.get("/myBookings", async (req, res) => {
+      const { email } = req.query;
+      const query = {
+        bookedUser: email,
+      };
+      const result = await roomsCollection.find(query).toArray();
       res.send(result);
     });
   } finally {
