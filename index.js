@@ -2,7 +2,16 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
+
+// firebase admin
+const admin = require("firebase-admin");
+const decodedServiceKey = Buffer.from(
+  process.env.FIREBASE_SERVICE_KEY,
+  "base64"
+).toString("utf8");
+
+const serviceAccount = JSON.parse(decodedServiceKey);
 
 // middleware
 app.use(cors());
@@ -19,6 +28,37 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+// verify token
+const verifyFireBaseToken = async (req, res, next) => {
+  const authHeader = req.headers?.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken;
+    console.log("decoded token", decodedToken);
+    next();
+  } catch (error) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+};
+
+// verify user email
+const verifyTokenEmail = async (req, res, next) => {
+  if (req.query.email !== req.user.email) {
+    return res.status(403).send({ message: "forbidden access" });
+  }
+  next();
+};
 
 async function run() {
   try {
@@ -58,14 +98,20 @@ async function run() {
     });
 
     // my bookings API
-    app.get("/myBookings", async (req, res) => {
-      const { email } = req.query;
-      const query = {
-        bookedUser: email,
-      };
-      const result = await roomsCollection.find(query).toArray();
-      res.send(result);
-    });
+    app.get(
+      "/myBookings",
+      verifyFireBaseToken,
+      verifyTokenEmail,
+      async (req, res) => {
+        const { email } = req.query;
+
+        const query = {
+          bookedUser: email,
+        };
+        const result = await roomsCollection.find(query).toArray();
+        res.send(result);
+      }
+    );
   } finally {
   }
 }
