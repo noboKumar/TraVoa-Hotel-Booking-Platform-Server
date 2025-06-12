@@ -72,6 +72,12 @@ async function run() {
       res.send(result);
     });
 
+    //featured rooms API
+    app.get("/featured", async (req, res) => {
+      const result = await roomsCollection.find().limit(6).toArray();
+      res.send(result);
+    });
+
     // room details API
     app.get("/rooms/:id", async (req, res) => {
       const id = req.params.id;
