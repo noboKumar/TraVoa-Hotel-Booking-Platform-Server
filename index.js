@@ -45,7 +45,6 @@ const verifyFireBaseToken = async (req, res, next) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     req.user = decodedToken;
-    console.log("decoded token", decodedToken);
     next();
   } catch (error) {
     return res.status(401).send({ message: "unauthorized access" });
@@ -118,6 +117,23 @@ async function run() {
         res.send(result);
       }
     );
+
+    // update room API on review post
+    app.patch("/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const postReview = req.body;
+      const updateDoc = {
+        $addToSet: {reviews:postReview},
+      };
+      const result = await roomsCollection.updateOne(
+        filter,
+        updateDoc,
+      );
+      res.send(result);
+      console.log(result);
+    });
+
   } finally {
   }
 }
