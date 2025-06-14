@@ -124,16 +124,23 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const postReview = req.body;
       const updateDoc = {
-        $addToSet: {reviews:postReview},
+        $addToSet: { reviews: postReview },
       };
-      const result = await roomsCollection.updateOne(
-        filter,
-        updateDoc,
-      );
+      const result = await roomsCollection.updateOne(filter, updateDoc);
       res.send(result);
-      console.log(result);
     });
 
+    // update date API
+    app.patch("/updateDate/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDate = req.body.dateData;
+      const updateDoc = {
+        $set: { bookedDate: updatedDate },
+      };
+      const result = await roomsCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
   } finally {
   }
 }
