@@ -141,6 +141,19 @@ async function run() {
       const result = await roomsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    // cancel booking API
+    app.patch("/cancelBooking/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const cancelBooking = {
+        $set: { available: true },
+        $unset: { bookedDate: "", bookedUser: "" },
+      };
+      const result = await roomsCollection.updateOne(filter, cancelBooking);
+      res.send(result);
+    });
+    
   } finally {
   }
 }
