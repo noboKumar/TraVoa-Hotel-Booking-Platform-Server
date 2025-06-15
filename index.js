@@ -18,7 +18,12 @@ app.use(cors());
 app.use(express.json());
 
 // mongodb
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const {
+  MongoClient,
+  ServerApiVersion,
+  ObjectId,
+  Timestamp,
+} = require("mongodb");
 const uri = process.env.DB_URI;
 
 const client = new MongoClient(uri, {
@@ -64,6 +69,7 @@ async function run() {
     const dataBase = client.db("TraVoa_DB");
     // collections
     const roomsCollection = dataBase.collection("rooms");
+    const reviewCollection = dataBase.collection("allReview");
 
     // rooms API
     app.get("/rooms", async (req, res) => {
@@ -118,7 +124,7 @@ async function run() {
       }
     );
 
-    // update room API on review post
+    // post review API
     app.patch("/review/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -153,7 +159,22 @@ async function run() {
       const result = await roomsCollection.updateOne(filter, cancelBooking);
       res.send(result);
     });
-    
+
+    // post all review API
+    app.post("/allReview", async (req, res) => {
+      const reviewInfo = req.body;
+      const result = await reviewCollection.insertOne(reviewInfo);
+      res.send(result);
+    });
+
+    // get all review API
+    app.get("/allReview", async (req, res) => {
+      const result = await reviewCollection
+        .find()
+        .sort({ timeStamp: -1 })
+        .toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
