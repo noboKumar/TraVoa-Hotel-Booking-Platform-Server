@@ -71,10 +71,20 @@ async function run() {
     const roomsCollection = dataBase.collection("rooms");
     const reviewCollection = dataBase.collection("allReview");
 
-    // rooms API
+    // rooms API with price range
     app.get("/rooms", async (req, res) => {
-      const result = await roomsCollection.find().toArray();
-      res.send(result);
+      const { minPrice, maxPrice } = req.query;
+      const minPriceNum = parseInt(minPrice);
+      const maxPriceNum = parseInt(maxPrice);
+      if (minPrice && maxPrice) {
+        const result = await roomsCollection
+          .find({ price: { $gte: minPriceNum, $lte: maxPriceNum } })
+          .toArray();
+        res.send(result);
+      } else {
+        const result = await roomsCollection.find().toArray();
+        res.send(result);
+      }
     });
 
     //featured rooms API
