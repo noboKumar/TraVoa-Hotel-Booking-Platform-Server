@@ -89,7 +89,21 @@ async function run() {
 
     //featured rooms API
     app.get("/featured", async (req, res) => {
-      const result = await roomsCollection.find().limit(6).toArray();
+      const result = await roomsCollection
+        .aggregate([
+          {
+            $addFields: {
+              reviewCount: { $size: "$reviews" },
+            },
+          },
+          {
+            $sort: { reviewCount: -1 },
+          },
+          {
+            $limit: 6,
+          },
+        ])
+        .toArray();
       res.send(result);
     });
 
