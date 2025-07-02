@@ -100,7 +100,7 @@ async function run() {
             $sort: { reviewCount: -1 },
           },
           {
-            $limit: 6,
+            $limit: 8,
           },
         ])
         .toArray();
