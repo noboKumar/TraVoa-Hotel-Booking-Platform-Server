@@ -73,16 +73,20 @@ async function run() {
 
     // rooms API with price range
     app.get("/rooms", async (req, res) => {
-      const { minPrice, maxPrice } = req.query;
+      const { minPrice, maxPrice, sort } = req.query;
       const minPriceNum = parseInt(minPrice);
       const maxPriceNum = parseInt(maxPrice);
+      const sortOrder = sort === "des" ? -1 : 1;
       if (minPrice && maxPrice) {
         const result = await roomsCollection
           .find({ price: { $gte: minPriceNum, $lte: maxPriceNum } })
           .toArray();
         res.send(result);
       } else {
-        const result = await roomsCollection.find().toArray();
+        const result = await roomsCollection
+          .find()
+          .sort({ title: sortOrder })
+          .toArray();
         res.send(result);
       }
     });
