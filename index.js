@@ -153,47 +153,67 @@ async function run() {
     );
 
     // post review API
-    app.patch("/review/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const postReview = req.body;
-      const updateDoc = {
-        $addToSet: { reviews: postReview },
-      };
-      const result = await roomsCollection.updateOne(filter, updateDoc);
-      res.send(result);
-    });
+    app.patch(
+      "/review/:id",
+      verifyFireBaseToken,
+      verifyTokenEmail,
+      async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const postReview = req.body;
+        const updateDoc = {
+          $addToSet: { reviews: postReview },
+        };
+        const result = await roomsCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+    );
 
     // update date API
-    app.patch("/updateDate/:id", async (req, res) => {
-      const { id } = req.params;
-      const filter = { _id: new ObjectId(id) };
-      const updatedDate = req.body.dateData;
-      const updateDoc = {
-        $set: { bookedDate: updatedDate },
-      };
-      const result = await roomsCollection.updateOne(filter, updateDoc);
-      res.send(result);
-    });
+    app.patch(
+      "/updateDate/:id",
+      verifyFireBaseToken,
+      verifyTokenEmail,
+      async (req, res) => {
+        const { id } = req.params;
+        const filter = { _id: new ObjectId(id) };
+        const updatedDate = req.body.dateData;
+        const updateDoc = {
+          $set: { bookedDate: updatedDate },
+        };
+        const result = await roomsCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+    );
 
     // cancel booking API
-    app.patch("/cancelBooking/:id", async (req, res) => {
-      const { id } = req.params;
-      const filter = { _id: new ObjectId(id) };
-      const cancelBooking = {
-        $set: { available: true },
-        $unset: { bookedDate: "", bookedUser: "" },
-      };
-      const result = await roomsCollection.updateOne(filter, cancelBooking);
-      res.send(result);
-    });
+    app.patch(
+      "/cancelBooking/:id",
+      verifyFireBaseToken,
+      verifyTokenEmail,
+      async (req, res) => {
+        const { id } = req.params;
+        const filter = { _id: new ObjectId(id) };
+        const cancelBooking = {
+          $set: { available: true },
+          $unset: { bookedDate: "", bookedUser: "" },
+        };
+        const result = await roomsCollection.updateOne(filter, cancelBooking);
+        res.send(result);
+      }
+    );
 
     // post all review API
-    app.post("/allReview", async (req, res) => {
-      const reviewInfo = req.body;
-      const result = await reviewCollection.insertOne(reviewInfo);
-      res.send(result);
-    });
+    app.post(
+      "/allReview",
+      verifyFireBaseToken,
+      verifyTokenEmail,
+      async (req, res) => {
+        const reviewInfo = req.body;
+        const result = await reviewCollection.insertOne(reviewInfo);
+        res.send(result);
+      }
+    );
 
     // get all review API
     app.get("/allReview", async (req, res) => {
